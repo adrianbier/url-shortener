@@ -1,0 +1,14 @@
+# Nur notwendige Dateien in den Docker-Build-Kontext aufnehmen.
+**/bin/
+**/obj/
+.git/
+.github/
+.vs/
+.vscode/
+.env
+.env.*
+!.env.example
+*.user
+*.suo
+Dockerfile.naive
+README.md

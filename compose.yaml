@@ -1,0 +1,36 @@
+# HA 1: ASP.NET-Core-API + PostgreSQL 17.
+name: url-shortener
+
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: shortener
+      POSTGRES_USER: shortener
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Bitte .env aus .env.example erstellen}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U shortener -d shortener"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
+    restart: unless-stopped
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__Default: "Host=db;Port=5432;Database=shortener;Username=shortener;Password=${POSTGRES_PASSWORD:?Bitte .env aus .env.example erstellen}"
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  postgres-data:
